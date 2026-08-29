@@ -22,9 +22,11 @@ import {
   XIcon,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useAtomValue } from "@effect/atom-react";
 
 import { isElectron } from "~/env";
 import { isWslSettingsRowVisible } from "./ConnectionsSettings.logic";
+import { primaryServerConfigAtom } from "../../state/server";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Kbd } from "../ui/kbd";
@@ -95,7 +97,15 @@ export function SettingsSidebarNav({ pathname }: { pathname: string }) {
     }
     return SETTINGS_SEARCH_ITEMS.filter((item) => item.id !== "wsl-backend");
   }, [desktopWsl.data, desktopWsl.error]);
-  const results = useMemo(() => searchSettings(query, searchableItems), [query, searchableItems]);
+  const supportsAutoSettlement =
+    useAtomValue(primaryServerConfigAtom)?.environment.capabilities.threadAutoSettlement === true;
+  const results = useMemo(
+    () =>
+      searchSettings(query, searchableItems, {
+        threadAutoSettlement: supportsAutoSettlement,
+      }),
+    [query, searchableItems, supportsAutoSettlement],
+  );
   const isSearching = query.trim().length > 0;
   const hasResults = results.length > 0;
 
