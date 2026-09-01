@@ -214,6 +214,33 @@ export const GrokIcon: Icon = ({ className, ...props }) => (
   </svg>
 );
 
+// Hermes Agent has no small-size vector mark (its favicon is the ⚕ text
+// glyph, its logo a detailed raster portrait), so this is a caduceus —
+// the Staff of Hermes its own favicon references — drawn as a
+// currentColor stroke so it needs no light/dark variants.
+export const HermesIcon: Icon = (props) => (
+  <svg
+    {...props}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* orb */}
+    <circle cx="12" cy="2.9" r="1.2" />
+    {/* staff */}
+    <path d="M12 4.8V21" />
+    {/* wings */}
+    <path d="M11.6 6.6C9.8 6.9 8.2 5.4 6.6 6.1c.9 1.1 2.4 1.6 4 1.4" />
+    <path d="M12.4 6.6c1.8.3 3.4-1.2 5-.5-.9 1.1-2.4 1.6-4 1.4" />
+    {/* snakes — two crossings, heads flaring by the wings */}
+    <path d="M9.2 19.3c0-2 5.6-2.7 5.6-5.1 0-2.3-5.6-2.5-5.6-4.7 0-1.3.9-2 2-2.2" />
+    <path d="M14.8 19.3c0-2-5.6-2.7-5.6-5.1 0-2.3 5.6-2.5 5.6-4.7 0-1.3-.9-2-2-2.2" />
+  </svg>
+);
+
 export const TraeIcon: Icon = (props) => (
   <svg {...props} viewBox="0 0 24 24" fill="currentColor">
     {/* Back rectangle: left strip + bottom strip drawn separately — empty bottom-left corner is the gap between them */}
