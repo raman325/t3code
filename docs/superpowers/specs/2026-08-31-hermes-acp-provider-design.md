@@ -46,14 +46,19 @@ Mirror the Grok template file-for-file:
 
 ### Models
 
-On session start, report what Hermes's ACP initialize/advertisement exposes; if it
-exposes nothing, report a single `default` entry — Hermes manages its own model config
-(litellm-backed). No custom model UI.
+Verified against the live CLI (v0.21.0): `session/new` returns a full
+`models.availableModels` catalog with `currentModelId` — the same parameterized-model
+shape Cursor uses, no special client capability required. Port Cursor's ACP model
+discovery; fall back to a single `default` entry only before discovery succeeds. The
+adapter therefore ports from `CursorAdapter.ts` (Grok remains the template for
+settings and driver shape).
 
 ### Text generation (titles, commits, branches, PRs)
 
-v1: explicitly unsupported via the existing `makeUnsupportedTextGeneration` pattern.
-Honest and small. Revisit only if Hermes's ACP surface makes a clean helper possible.
+Included in v1. `CursorTextGeneration.ts` runs an ephemeral ACP session per generation
+and parses JSON output — a straight port with the runtime factory swapped, meeting this
+spec's "only if it slots cleanly" bar. (No `makeUnsupportedTextGeneration` helper exists
+in-tree; `textGeneration` is a required field on `ProviderInstance`.)
 
 ### Permissions / runtime modes
 
@@ -106,11 +111,16 @@ driverKind generically by design.
   fix, verification evidence, scope fences, model + harness credit. Expect possible
   defer-forever; the fork is the operating vehicle either way.
 
-## Open questions (resolve during implementation planning)
+## Open questions — resolved by live-CLI probe (v0.21.0)
 
-1. What does `hermes acp` advertise on `initialize` (models, capabilities, auth
-   methods)? Probe the live CLI first; it determines the snapshot/models code.
-2. Does Hermes support `session/load` for resume, or new-session-per-restart? The
-   generic runtime handles both; affects the resumeCursor shape.
-3. Does Hermes emit `request_permission` at all, or auto-execute? Determines whether
-   runtimeMode mapping is needed in v1.
+1. `initialize` advertises `loadSession: true`, `promptCapabilities: { image: true }`,
+   `sessionCapabilities: { fork, list, resume }`, and auth methods `custom` (runtime
+   credentials) + `hermes-setup` (terminal). The driver authenticates with `custom`.
+2. `session/load` is supported — resume uses the same `{ sessionId }` resumeCursor
+   shape as Cursor.
+3. Permission behavior stays on the generic runtime's `request_permission` brokering;
+   no mode-specific CLI args in v1 (`--accept-hooks` governs shell-hook trust, not ACP
+   permissions, and is deliberately not passed). Verified further during the env-gated
+   live probe task.
+
+Implementation plan: `docs/superpowers/plans/2026-08-31-hermes-acp-provider.md`
