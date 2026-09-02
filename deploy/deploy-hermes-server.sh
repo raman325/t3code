@@ -62,7 +62,10 @@ UNITFILE
 
 loginctl enable-linger "$USER" >/dev/null 2>&1 || true
 systemctl --user daemon-reload
-systemctl --user enable --now "$UNIT"
+systemctl --user enable "$UNIT"
+# `enable --now` is a no-op when the unit is already running, which would leave
+# a redeploy serving the previous build from memory. Always restart.
+systemctl --user restart "$UNIT"
 sleep 3
 systemctl --user --no-pager --lines=0 status "$UNIT" | head -5
 REMOTE
